@@ -335,23 +335,24 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 	header->addWidget(configButton);
 
 	// Compact links keep both the project support and the upstream credit visible.
-	auto supportLink = new QLabel;
-	supportLink->setText(QStringLiteral("<a href='https://dalink.to/otmopozok' style='color:#57d9c3;text-decoration:none'>") +
+	footerSupportLink = new QLabel;
+	footerSupportLink->setText(QStringLiteral("<a href='https://dalink.to/otmopozok' style='color:#57d9c3;text-decoration:none'>") +
 			     QString::fromUtf8(obs_module_text("DonateFooter")) + QStringLiteral("</a>"));
-	supportLink->setOpenExternalLinks(true);
-	supportLink->setWordWrap(true);
-	supportLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
-	buttonRow->addWidget(supportLink);
+	footerSupportLink->setOpenExternalLinks(true);
+	footerSupportLink->setToolTip(QString::fromUtf8(obs_module_text("AitumMultistreamDonate")));
+	footerSupportLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
+	buttonRow->addWidget(footerSupportLink);
 	buttonRow->addStretch(1);
-	auto aitumLink = new QLabel;
-	aitumLink->setText(QStringLiteral("<a href='https://github.com/Aitum/obs-aitum-multistream' style='color:#9fb8d1;text-decoration:none'>") +
+	footerCreditLink = new QLabel;
+	footerCreditLink->setText(QStringLiteral("<a href='https://github.com/Aitum/obs-aitum-multistream' style='color:#9fb8d1;text-decoration:none'>") +
 			   QString::fromUtf8(obs_module_text("BasedOnFooter")) + QStringLiteral("</a>"));
-	aitumLink->setOpenExternalLinks(true);
-	aitumLink->setWordWrap(true);
-	aitumLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
-	buttonRow->addWidget(aitumLink);
+	footerCreditLink->setOpenExternalLinks(true);
+	footerCreditLink->setToolTip(QStringLiteral("На основе Aitum Multistream (GPL-2.0)"));
+	footerCreditLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
+	buttonRow->addWidget(footerCreditLink);
 
 	mainLayout->addLayout(buttonRow);
+	UpdateFooterWrapping();
 
 	obs_frontend_add_event_callback(frontend_event, this);
 
@@ -576,6 +577,19 @@ void MultistreamDock::resizeEvent(QResizeEvent *event)
 {
 	QFrame::resizeEvent(event);
 	ReflowOutputCards();
+	UpdateFooterWrapping();
+}
+
+void MultistreamDock::UpdateFooterWrapping()
+{
+	if (!footerSupportLink || !footerCreditLink)
+		return;
+	const int needed = 28 + footerSupportLink->fontMetrics().horizontalAdvance(
+		QString::fromUtf8(obs_module_text("DonateFooter"))) +
+		footerCreditLink->fontMetrics().horizontalAdvance(QString::fromUtf8(obs_module_text("BasedOnFooter")));
+	const bool wrap = width() < needed;
+	footerSupportLink->setWordWrap(wrap);
+	footerCreditLink->setWordWrap(wrap);
 }
 
 void MultistreamDock::ReflowOutputCards()

@@ -31,6 +31,8 @@ private:
 	QPushButton *mainStreamButton = nullptr;
 	QPushButton *configButton = nullptr;
 	QLabel *mainPlatformIconLabel = nullptr;
+	QLabel *footerSupportLink = nullptr;
+	QLabel *footerCreditLink = nullptr;
 	QString mainPlatformUrl;
 
 	QString newer_version_available;
@@ -56,6 +58,7 @@ private:
 
 	void outputButtonStyle(QPushButton *button);
 	void ReflowOutputCards();
+	void UpdateFooterWrapping();
 
 	void storeMainStreamEncoders();
 
