@@ -28,6 +28,8 @@ jobs:
           Copy-Item "$source/bin/64bit/stream-multi.dll" "$destination/bin/64bit/stream-multi.dll"
           Copy-Item "$source/data" "$destination/data" -Recurse
           Copy-Item 'LICENSE','NOTICE.md','README.md' 'package/'
+          New-Item -ItemType Directory -Path 'package/docs' -Force | Out-Null
+          Copy-Item 'docs/images' 'package/docs/images' -Recurse
           $file = Get-Item "$destination/bin/64bit/stream-multi.dll"
           if ($file.Length -lt 100KB) { throw 'Plugin DLL is unexpectedly small' }
           Get-FileHash $file.FullName -Algorithm SHA256 | Format-List

@@ -2,6 +2,8 @@
 
 **Несколько трансляций из одной OBS в стиле Stream Chat, Stream Notify и Stream Stats.** Stream Multi управляет выводами обычного горизонтального холста. Вертикальные сцены и их настройки в этой версии не используются.
 
+![Stream Multi в OBS Studio 33](docs/images/stream-multi-0.1.3.png)
+
 Разработчик оформления и адаптации: **DMITRII / [OTMOPOZOK](https://www.youtube.com/channel/UCTAKYR3T2Ud8zZgNShgQfyw/)**. Проект основан на открытом [Aitum Multistream](https://github.com/Aitum/obs-aitum-multistream) команды Aitum и Exeldro. Их авторство и лицензия GPL-2.0 сохранены.
 
 ## Что делает
