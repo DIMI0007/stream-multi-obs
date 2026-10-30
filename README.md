@@ -30,4 +30,4 @@ Stream Multi работает независимо от Stream Chat, Stream Noti
 
 ## Поддержать проект
 
-Если наши плагины полезны, поддержите их развитие: [DonationAlerts](https://www.donationalerts.com/r/otmopozok) · [DonatePay](https://donatepay.ru/don/OTMOPOZOK).
+Если наши плагины полезны, поддержите их развитие: [поддержать проект](https://dalink.to/otmopozok) можно и вне эфира. Также доступен [DonatePay](https://donatepay.ru/don/OTMOPOZOK).

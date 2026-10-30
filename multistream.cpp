@@ -291,8 +291,8 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 
 	// Bottom Button Row
 	auto buttonRow = new QHBoxLayout;
-	buttonRow->setContentsMargins(8, 6, 8, 4);
-	buttonRow->setSpacing(8);
+	buttonRow->setContentsMargins(11, 3, 11, 4);
+	buttonRow->setSpacing(6);
 
 	// Config Button
 	configButton = new QPushButton;
@@ -334,23 +334,22 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 	configButton->setStyleSheet("QPushButton {background:#172536; border:1px solid #344c63; border-radius:6px; color:#b9cce0;} QPushButton:hover {background:#21364b; border-color:#4a7188;}");
 	header->addWidget(configButton);
 
-	// Contribute Button
-	auto contributeButton = new QPushButton;
-	contributeButton->setMinimumHeight(26);
-	contributeButton->setIcon(ConfigUtils::generateEmojiQIcon("❤️"));
-	contributeButton->setToolTip(QString::fromUtf8(obs_module_text("AitumMultistreamDonate")));
-	QPushButton::connect(contributeButton, &QPushButton::clicked,
-			     [] { QDesktopServices::openUrl(QUrl("https://www.donationalerts.com/r/otmopozok")); });
-	buttonRow->addWidget(contributeButton);
-
-	// Keep a visible credit and link to the original project.
-	auto aitumButton = new QPushButton;
-	aitumButton->setMinimumHeight(30);
-	//aitumButton->setSizePolicy(sp2);
-	aitumButton->setText(QStringLiteral("Aitum"));
-	aitumButton->setToolTip(QStringLiteral("На основе Aitum Multistream (GPL-2.0)"));
-	QPushButton::connect(aitumButton, &QPushButton::clicked, [] { QDesktopServices::openUrl(QUrl("https://github.com/Aitum/obs-aitum-multistream")); });
-	buttonRow->addWidget(aitumButton);
+	// Compact links keep both the project support and the upstream credit visible.
+	auto supportLink = new QLabel;
+	supportLink->setText(QStringLiteral("<a href='https://dalink.to/otmopozok' style='color:#57d9c3;text-decoration:none'>") +
+			     QString::fromUtf8(obs_module_text("DonateFooter")) + QStringLiteral("</a>"));
+	supportLink->setOpenExternalLinks(true);
+	supportLink->setWordWrap(true);
+	supportLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
+	buttonRow->addWidget(supportLink);
+	buttonRow->addStretch(1);
+	auto aitumLink = new QLabel;
+	aitumLink->setText(QStringLiteral("<a href='https://github.com/Aitum/obs-aitum-multistream' style='color:#9fb8d1;text-decoration:none'>") +
+			   QString::fromUtf8(obs_module_text("BasedOnFooter")) + QStringLiteral("</a>"));
+	aitumLink->setOpenExternalLinks(true);
+	aitumLink->setWordWrap(true);
+	aitumLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
+	buttonRow->addWidget(aitumLink);
 
 	mainLayout->addLayout(buttonRow);
 
