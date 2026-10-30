@@ -24,10 +24,11 @@ jobs:
           $destination = 'package/stream-multi'
           if (!(Test-Path "$source/bin/64bit/stream-multi.dll")) { throw 'Plugin DLL is missing' }
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
-          Copy-Item "$source/bin/64bit/stream-multi.dll" "$destination/stream-multi.dll"
+          New-Item -ItemType Directory -Path "$destination/bin/64bit" -Force | Out-Null
+          Copy-Item "$source/bin/64bit/stream-multi.dll" "$destination/bin/64bit/stream-multi.dll"
           Copy-Item "$source/data" "$destination/data" -Recurse
           Copy-Item 'LICENSE','NOTICE.md','README.md' 'package/'
-          $file = Get-Item "$destination/stream-multi.dll"
+          $file = Get-Item "$destination/bin/64bit/stream-multi.dll"
           if ($file.Length -lt 100KB) { throw 'Plugin DLL is unexpectedly small' }
           Get-FileHash $file.FullName -Algorithm SHA256 | Format-List
       - uses: actions/upload-artifact@v4

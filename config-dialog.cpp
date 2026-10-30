@@ -553,8 +553,7 @@ void OBSBasicSettings::AddServer(QFormLayout *outputsLayout, obs_data_t *setting
 
 	auto streaming_title = new QToolButton;
 	streaming_title->setText(QString::fromUtf8(obs_data_get_string(settings, "name")));
-	streaming_title->setStyleSheet(QString("QToolButton{background-color: %1;font-weight: bold;border: none;}")
-					       .arg(palette().color(QPalette::ColorRole::Mid).name(QColor::HexRgb)));
+	streaming_title->setStyleSheet(QStringLiteral("QToolButton{background:#101d2c;color:#e6f0fa;font-weight:600;border:none;text-align:left;}"));
 	streaming_title->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	streaming_title->setArrowType(expanded ? Qt::ArrowType::DownArrow : Qt::ArrowType::RightArrow);
 	streaming_title->setCheckable(true);
@@ -578,12 +577,10 @@ void OBSBasicSettings::AddServer(QFormLayout *outputsLayout, obs_data_t *setting
 
 	// Tab widget
 	// 1 = bg for active tab + pane, 2 = inactive tabs, 3 = tab text colour, 4 = border colour for pane
-	auto tabStyles =
-		QString("QTabWidget::pane {  background: %1; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-top-right-radius: 4px; margin-top: -1px; padding-top: 8px; border: 1px solid %4; } QTabWidget::tab-bar { margin-bottom: 0; padding-bottom: 0; border-color: %4; } QTabBar::tab { color: %3; padding: 10px; margin-bottom: 0; border: 1px solid %4; } QTabBar::tab:selected { background: %1; font-weight: bold; border-bottom: none; } QTabBar::tab:!selected { background: %2; }")
-			.arg(palette().color(QPalette::ColorRole::Mid).name(QColor::HexRgb),
-			     palette().color(QPalette::ColorRole::Light).name(QColor::HexRgb),
-			     palette().color(QPalette::ColorRole::Text).name(QColor::HexRgb),
-			     palette().color(QPalette::ColorRole::Light).name(QColor::HexRgb));
+	auto tabStyles = QStringLiteral(
+		"QTabWidget::pane {background:#101d2c;border:1px solid #294158;border-radius:5px;padding-top:8px;} "
+		"QTabBar::tab {background:#0b1521;color:#a9bed3;padding:7px 10px;border:1px solid #294158;} "
+		"QTabBar::tab:selected {background:#173044;color:#eff8ff;font-weight:600;border-bottom-color:#173044;}");
 
 	auto advancedTabWidget = new QTabWidget;
 	advancedTabWidget->setContentsMargins(0, 0, 0, 0);
