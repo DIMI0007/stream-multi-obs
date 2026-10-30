@@ -1,7 +1,7 @@
 {
     "display_name": "Stream Multi",
     "id": "b012fd25-cf74-427e-91ca-554a8464ee3b",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "authors": ["DMITRII", "Aitum", "Exeldro"],
     "name": "stream-multi",
     "description": "Horizontal multistream plugin for OBS Studio based on Aitum Multistream.",

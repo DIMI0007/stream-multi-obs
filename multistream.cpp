@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QVector>
 #include <QVBoxLayout>
 #include <util/config-file.h>
 #include <util/platform.h>
@@ -115,22 +116,24 @@ void RemoveWidget(QWidget *widget)
 // Output button styling
 void MultistreamDock::outputButtonStyle(QPushButton *button)
 {
-	button->setMinimumHeight(24);
+	button->setMinimumHeight(25);
+	button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	button->setIcon(QIcon());
+	button->setText(QString::fromUtf8(obs_module_text(button->isChecked() ? "StopOutputButton" : "StartOutputButton")));
+	button->setToolTip(button->property("outputName").toString() + QStringLiteral(" · ") + button->text());
 
 	button->setStyleSheet(button->isChecked()
-		? "QPushButton {min-width:30px; padding:2px 10px; color:#03241d; background:#20d9a6; border:1px solid #20d9a6; border-radius:6px;}"
-		: "QPushButton {min-width:30px; padding:2px 10px; color:#b9cce0; background:#172536; border:1px solid #344c63; border-radius:6px;} QPushButton:hover {background:#21364b; border-color:#4a7188;}");
-
-	button->setIcon(button->isChecked() ? streamActiveIcon : streamInactiveIcon);
+		? "QPushButton {padding:2px 4px; color:#40e6b6; background:#12352f; border:1px solid #1cb98e; border-radius:5px;} QPushButton:hover {background:#19483e;}"
+		: "QPushButton {padding:2px 4px; color:#d7e5f2; background:#172536; border:1px solid #344c63; border-radius:5px;} QPushButton:hover {background:#21364b; border-color:#4a7188;}");
 }
 
 // Common styling things here
 auto canvasGroupStyle = QString("QGroupBox {background:#0b1521; border:1px solid #273c51; border-radius:7px; padding:5px;}");
 auto canvasGroupHeaderStyle = QString("QLabel {color:#e8f2fb; font-weight:600; padding:2px 0;}");
 auto outputTitleStyle = QString("QLabel {color:#e6f0fa; font-weight:600;}");
-auto outputGroupStyle = QString("QGroupBox {background:#101d2c; border:1px solid #294158; border-radius:7px; padding:4px;}");
+auto outputGroupStyle = QString("QGroupBox {background:#101d2c; border:1px solid #294158; border-radius:7px; padding:2px;}");
 
-auto outputPlatformIconSize = 36;
+auto outputPlatformIconSize = 32;
 
 // For showing warning for no vertical integration
 void showVerticalWarning(QVBoxLayout *verticalLayout)
@@ -187,45 +190,42 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 	mainCanvasGroup->setStyleSheet(canvasGroupStyle);
 
 	mainCanvasLayout = new QVBoxLayout;
-	mainCanvasLayout->setSpacing(4); // between outputs on main canvas
-
-	// Layout for header row
-	auto mainCanvasTitleRowLayout = new QHBoxLayout;
-
-	auto mainCanvasLabel = new QLabel(QString::fromUtf8(obs_module_text("MainCanvas")));
-	mainCanvasLabel->setStyleSheet(canvasGroupHeaderStyle);
-	mainCanvasTitleRowLayout->addWidget(mainCanvasLabel);
-
-	mainCanvasLayout->addLayout(mainCanvasTitleRowLayout);
+	mainCanvasLayout->setContentsMargins(5, 5, 5, 5);
+	mainCanvasLayout->setSpacing(0);
 
 	// We store the actual outputs here
-	mainCanvasOutputLayout = new QVBoxLayout;
-	mainCanvasOutputLayout->setSpacing(4); // between outputs on main canvas
+	mainCanvasOutputLayout = new QGridLayout;
+	mainCanvasOutputLayout->setContentsMargins(0, 0, 0, 0);
+	mainCanvasOutputLayout->setHorizontalSpacing(4);
+	mainCanvasOutputLayout->setVerticalSpacing(4);
 
 	auto mainStreamGroup = new QGroupBox;
 	mainStreamGroup->setStyleSheet(outputGroupStyle);
+	mainStreamGroup->setAccessibleName(QString::fromUtf8(obs_module_text("BuiltinStream")));
+	mainStreamGroup->setMinimumWidth(86);
+	mainStreamGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 	auto mainStreamLayout = new QVBoxLayout;
-
-	auto l2 = new QHBoxLayout;
-
-	// Label for built in stream
-	auto bisHeaderLabel = new QLabel(QString::fromUtf8(obs_module_text("BuiltinStream")));
-	bisHeaderLabel->setStyleSheet(outputTitleStyle);
+	mainStreamLayout->setContentsMargins(4, 4, 4, 4);
+	mainStreamLayout->setSpacing(3);
 
 	// blank because we're pulling settings through from bis later
 	mainPlatformIconLabel = new QLabel;
+	mainPlatformIconLabel->setAlignment(Qt::AlignCenter);
+	mainPlatformIconLabel->setFixedHeight(34);
+	mainPlatformIconLabel->setStyleSheet(QStringLiteral("background:transparent;"));
+	mainPlatformIconLabel->setToolTip(QString::fromUtf8(obs_module_text("BuiltinStream")));
 	auto platformIcon = ConfigUtils::getPlatformIconFromEndpoint(QString::fromUtf8(""));
 	mainPlatformIconLabel->setPixmap(platformIcon.pixmap(outputPlatformIconSize, outputPlatformIconSize));
 
-	l2->addWidget(mainPlatformIconLabel);
-	l2->addWidget(bisHeaderLabel, 1);
+	mainStreamLayout->addWidget(mainPlatformIconLabel);
 
 	mainStreamButton = new QPushButton;
 	mainStreamButton->setObjectName(QStringLiteral("canvasStream"));
 	mainStreamButton->setIcon(streamInactiveIcon);
 	mainStreamButton->setCheckable(true);
 	mainStreamButton->setChecked(false);
+	mainStreamButton->setProperty("outputName", QString::fromUtf8(obs_module_text("BuiltinStream")));
 
 	outputButtonStyle(mainStreamButton);
 
@@ -269,13 +269,11 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 		outputButtonStyle(mainStreamButton);
 	});
 	//streamButton->setSizePolicy(sp2);
-	mainStreamButton->setToolTip(QString::fromUtf8(obs_module_text("Stream")));
-	l2->addWidget(mainStreamButton);
-	mainStreamLayout->addLayout(l2);
+	mainStreamLayout->addWidget(mainStreamButton);
 
 	mainStreamGroup->setLayout(mainStreamLayout);
 
-	mainCanvasOutputLayout->addWidget(mainStreamGroup);
+	mainCanvasOutputLayout->addWidget(mainStreamGroup, 0, 0);
 
 	mainCanvasLayout->addLayout(mainCanvasOutputLayout);
 	mainCanvasGroup->setLayout(mainCanvasLayout);
@@ -479,7 +477,6 @@ void MultistreamDock::frontend_event(enum obs_frontend_event event, void *privat
 	} else if (event == OBS_FRONTEND_EVENT_STREAMING_STARTING || event == OBS_FRONTEND_EVENT_STREAMING_STARTED) {
 		md->mainStreamButton->setChecked(true);
 		md->outputButtonStyle(md->mainStreamButton);
-		md->mainStreamButton->setIcon(md->streamActiveIcon);
 		md->storeMainStreamEncoders();
 	} else if (event == OBS_FRONTEND_EVENT_STREAMING_STOPPING || event == OBS_FRONTEND_EVENT_STREAMING_STOPPED) {
 		md->mainStreamButton->setChecked(false);
@@ -572,6 +569,35 @@ void MultistreamDock::LoadSettings()
 		},
 		this);
 	obs_data_array_release(outputs2);
+	outputColumns = 0;
+	ReflowOutputCards();
+}
+
+void MultistreamDock::resizeEvent(QResizeEvent *event)
+{
+	QFrame::resizeEvent(event);
+	ReflowOutputCards();
+}
+
+void MultistreamDock::ReflowOutputCards()
+{
+	if (!mainCanvasOutputLayout)
+		return;
+	const int count = mainCanvasOutputLayout->count();
+	if (count == 0)
+		return;
+	const int columns = qMax(1, qMin(count, (width() - 24) / 100));
+	if (columns == outputColumns)
+		return;
+	QVector<QWidget *> cards;
+	cards.reserve(count);
+	while (QLayoutItem *item = mainCanvasOutputLayout->takeAt(0)) {
+		cards.append(item->widget());
+		delete item;
+	}
+	for (int i = 0; i < cards.size(); ++i)
+		mainCanvasOutputLayout->addWidget(cards.at(i), i / columns, i % columns);
+	outputColumns = columns;
 }
 
 void MultistreamDock::LoadOutput(obs_data_t *output_data, bool vertical)
@@ -615,25 +641,31 @@ void MultistreamDock::LoadOutput(obs_data_t *output_data, bool vertical)
 	auto streamGroup = new QGroupBox;
 	streamGroup->setStyleSheet(outputGroupStyle);
 	streamGroup->setObjectName(name);
+	streamGroup->setAccessibleName(name);
+	streamGroup->setMinimumWidth(86);
+	streamGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	auto streamLayout = new QVBoxLayout;
-
-	auto l2 = new QHBoxLayout;
+	streamLayout->setContentsMargins(4, 4, 4, 4);
+	streamLayout->setSpacing(3);
 
 	auto endpoint = QString::fromUtf8(obs_data_get_string(output_data, "stream_server"));
 	auto platformIconLabel = new QLabel;
+	platformIconLabel->setAlignment(Qt::AlignCenter);
+	platformIconLabel->setFixedHeight(34);
+	platformIconLabel->setStyleSheet(QStringLiteral("background:transparent;"));
+	platformIconLabel->setToolTip(name);
 	auto platformIcon = ConfigUtils::getPlatformIconFromEndpoint(endpoint);
 
 	platformIconLabel->setPixmap(platformIcon.pixmap(outputPlatformIconSize, outputPlatformIconSize));
 
-	l2->addWidget(platformIconLabel);
-
-	l2->addWidget(new QLabel(name), 1);
+	streamLayout->addWidget(platformIconLabel);
 
 	streamButton->setMinimumHeight(30);
 	streamButton->setObjectName(QStringLiteral("canvasStream"));
 	streamButton->setIcon(streamInactiveIcon);
 	streamButton->setCheckable(true);
 	streamButton->setChecked(false);
+	streamButton->setProperty("outputName", name);
 	outputButtonStyle(streamButton);
 
 	if (vertical) {
@@ -724,16 +756,14 @@ void MultistreamDock::LoadOutput(obs_data_t *output_data, bool vertical)
 		});
 	}
 	//streamButton->setSizePolicy(sp2);
-	streamButton->setToolTip(QString::fromUtf8(obs_module_text("Stream")));
-	l2->addWidget(streamButton);
-	streamLayout->addLayout(l2);
+	streamLayout->addWidget(streamButton);
 
 	streamGroup->setLayout(streamLayout);
 
 	if (vertical) {
 		verticalCanvasOutputLayout->addWidget(streamGroup);
 	} else {
-		mainCanvasOutputLayout->addWidget(streamGroup);
+		mainCanvasOutputLayout->addWidget(streamGroup, mainCanvasOutputLayout->count(), 0);
 	}
 }
 

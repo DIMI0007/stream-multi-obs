@@ -5,7 +5,9 @@
 #include <obs.h>
 #include <obs-frontend-api.h>
 #include <QFrame>
+#include <QGridLayout>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QString>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -22,7 +24,8 @@ private:
 
 	QVBoxLayout *mainLayout = nullptr;
 	QVBoxLayout *mainCanvasLayout = nullptr;
-	QVBoxLayout *mainCanvasOutputLayout = nullptr;
+	QGridLayout *mainCanvasOutputLayout = nullptr;
+	int outputColumns = 0;
 	QVBoxLayout *verticalCanvasLayout = nullptr;
 	QVBoxLayout *verticalCanvasOutputLayout = nullptr;
 	QPushButton *mainStreamButton = nullptr;
@@ -52,6 +55,7 @@ private:
 	bool StartOutput(obs_data_t *settings, QPushButton *streamButton);
 
 	void outputButtonStyle(QPushButton *button);
+	void ReflowOutputCards();
 
 	void storeMainStreamEncoders();
 
@@ -79,6 +83,9 @@ public:
 	~MultistreamDock();
 	void LoadVerticalOutputs(bool firstLoad = true);
 	void LoadWebsocket();
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
 };
 
 class AspectRatioPixmapLabel : public QLabel {
