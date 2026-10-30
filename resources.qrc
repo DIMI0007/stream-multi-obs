@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/aitum">
+    <file>media/stream-multi.svg</file>
     <file>media/aitum.png</file>
     <file>media/stream.svg</file>
     <file>media/streaming.svg</file>

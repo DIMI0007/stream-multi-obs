@@ -36,13 +36,13 @@
             "bundleId": "tv.aitum.multi"
         }
     },
-    "name": "aitum-multistream",
-    "displayName": "Aitum Multistream",
-    "version": "1.0.9",
-    "author": "Aitum",
-    "website": "https://aitum.tv",
-    "email": "support@aitum.tv",
+    "name": "stream-multi",
+    "displayName": "Stream Multi",
+    "version": "0.1.0",
+    "author": "DMITRII (based on Aitum Multistream)",
+    "website": "https://github.com/DIMI0007",
+    "email": "",
     "uuids": {
-        "windowsApp": "7E8814F2-03EE-4E2E-8062-A9A184EC0618"
+        "windowsApp": "B012FD25-CF74-427E-91CA-554A8464EE3B"
     }
 }

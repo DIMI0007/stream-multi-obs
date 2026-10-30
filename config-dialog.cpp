@@ -53,6 +53,7 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 	setMinimumWidth(983);
 	setMinimumHeight(480);
 	setWindowTitle(obs_module_text("AitumMultistreamSettings"));
+	setStyleSheet("QDialog {background:#080f19; color:#d7e5f2;} QListWidget, QStackedWidget, QScrollArea {background:#0b1521; color:#d7e5f2; border:1px solid #273c51; border-radius:6px;} QListWidget::item:selected {background:#19372f; color:#effff9;} QPushButton, QToolButton {background:#172536; color:#d7e5f2; border:1px solid #344c63; border-radius:5px; padding:5px 9px;} QPushButton:hover, QToolButton:hover {background:#21364b;} QLineEdit, QComboBox, QSpinBox {background:#0c1724; color:#e5f0fa; border:1px solid #344c63; border-radius:5px; padding:4px;} QGroupBox {border:1px solid #273c51; border-radius:7px; margin-top:5px;} QLabel {color:#d7e5f2;}");
 	setSizeGripEnabled(true);
 
 	const auto main_window = static_cast<QMainWindow *>(obs_frontend_get_main_window());
@@ -75,6 +76,7 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 	listwidgetitem = new QListWidgetItem(listWidget);
 	listwidgetitem->setIcon(QIcon(QString::fromUtf8(":/settings/images/settings/stream.svg")));
 	listwidgetitem->setText(QString::fromUtf8(obs_module_text("VerticalCanvas")));
+	listwidgetitem->setHidden(true);
 
 	listwidgetitem = new QListWidgetItem(listWidget);
 	listwidgetitem->setIcon(main_window->property("defaultIcon").value<QIcon>());
@@ -86,7 +88,7 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 	listwidgetitem->setText(QString::fromUtf8(obs_module_text("Help")));
 
 	listwidgetitem = new QListWidgetItem(listWidget);
-	listwidgetitem->setIcon(QIcon(QString::fromUtf8(":/aitum/media/aitum.png")));
+	listwidgetitem->setIcon(QIcon(QString::fromUtf8(":/aitum/media/stream-multi.svg")));
 	listwidgetitem->setText(QString::fromUtf8(obs_module_text("SupportButton")));
 
 	listWidget->setCurrentRow(0);
@@ -122,10 +124,11 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 	generalHelpButton = ConfigUtils::generateMenuButton(QString::fromUtf8(obs_module_text("SettingsHelpButton")),
 							    main_window->property("defaultIcon").value<QIcon>());
 	generalSupportAitumButton = ConfigUtils::generateMenuButton(QString::fromUtf8(obs_module_text("SupportButton")),
-								    QIcon(QString::fromUtf8(":/aitum/media/aitum.png")));
+								    QIcon(QString::fromUtf8(":/aitum/media/stream-multi.svg")));
 
 	buttonLayout->addWidget(generalMainButton, 0);
 	buttonLayout->addWidget(generalVerticalButton, 0);
+	generalVerticalButton->hide();
 	buttonLayout->addWidget(generalHelpButton, 0);
 	buttonLayout->addWidget(generalSupportAitumButton, 0);
 
@@ -266,8 +269,7 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 
 	auto serverGroup = new QGroupBox;
 	serverGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-	serverGroup->setStyleSheet(QString("QGroupBox{background-color: %1; padding-top: 4px;}")
-					   .arg(palette().color(QPalette::ColorRole::Mid).name(QColor::HexRgb)));
+	serverGroup->setStyleSheet("QGroupBox{background:#101d2c; border:1px solid #294158; border-radius:7px; padding-top:4px;}");
 
 	auto serverLayout = new QFormLayout;
 	serverLayout->setContentsMargins(9, 2, 9, 9);
@@ -374,9 +376,8 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 	settingsPages->addWidget(supportPage);
 
 	///
-	const auto version =
-		new QLabel(QString::fromUtf8(obs_module_text("Version")) + " " + QString::fromUtf8(PROJECT_VERSION) + " " +
-			   QString::fromUtf8(obs_module_text("MadeBy")) + " <a href=\"https://aitum.tv\">Aitum</a>");
+	const auto version = new QLabel(QStringLiteral("Stream Multi v") + QString::fromUtf8(PROJECT_VERSION) +
+		QStringLiteral(" · DMITRII · <a href=\"https://github.com/Aitum/obs-aitum-multistream\">на основе Aitum Multistream</a>"));
 	version->setOpenExternalLinks(true);
 	version->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
@@ -531,9 +532,7 @@ void OBSBasicSettings::AddServer(QFormLayout *outputsLayout, obs_data_t *setting
 	serverGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 	serverGroup->setProperty("altColor", QVariant(true));
 	serverGroup->setProperty("customTitle", QVariant(true));
-	serverGroup->setStyleSheet(
-		QString("QGroupBox[altColor=\"true\"]{background-color: %1;} QGroupBox[customTitle=\"true\"]{padding-top: 4px;}")
-			.arg(palette().color(QPalette::ColorRole::Mid).name(QColor::HexRgb)));
+	serverGroup->setStyleSheet("QGroupBox[altColor=\"true\"]{background:#101d2c; border:1px solid #294158; border-radius:7px;} QGroupBox[customTitle=\"true\"]{padding-top:4px;}");
 
 	auto serverLayout = new QFormLayout;
 	serverLayout->setContentsMargins(9, 2, 9, 2);
@@ -991,7 +990,6 @@ void OBSBasicSettings::AddServer(QFormLayout *outputsLayout, obs_data_t *setting
 
 			// Reload
 			LoadSettings(main_settings);
-			LoadVerticalSettings(false);
 		}
 
 		delete outputDialog;

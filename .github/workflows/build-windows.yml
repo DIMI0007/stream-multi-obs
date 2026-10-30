@@ -1,0 +1,37 @@
+name: Build Stream Multi for OBS 33
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Windows x64 plugin
+        shell: pwsh
+        run: ./.github/scripts/Build-Windows.ps1 -Configuration Release
+      - name: Prepare OBS 33 plugin folder
+        shell: pwsh
+        run: |
+          $source = 'release/Release/stream-multi'
+          $destination = 'package/stream-multi'
+          if (!(Test-Path "$source/bin/64bit/stream-multi.dll")) { throw 'Plugin DLL is missing' }
+          New-Item -ItemType Directory -Path $destination -Force | Out-Null
+          Copy-Item "$source/bin/64bit/stream-multi.dll" "$destination/stream-multi.dll"
+          Copy-Item "$source/data" "$destination/data" -Recurse
+          Copy-Item 'LICENSE','NOTICE.md','README.md' 'package/'
+          $file = Get-Item "$destination/stream-multi.dll"
+          if ($file.Length -lt 100KB) { throw 'Plugin DLL is unexpectedly small' }
+          Get-FileHash $file.FullName -Algorithm SHA256 | Format-List
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StreamMulti-0.1.0-OBS33-Windows-x64
+          path: package/
+          if-no-files-found: error

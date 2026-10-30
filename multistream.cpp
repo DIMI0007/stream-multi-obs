@@ -4,6 +4,8 @@
 #include "version.h"
 #include <obs-frontend-api.h>
 #include <QDesktopServices>
+#include <QDir>
+#include <QFileInfo>
 #include <QGroupBox>
 #include <QLabel>
 #include <QMainWindow>
@@ -19,8 +21,8 @@ extern "C" {
 }
 
 OBS_DECLARE_MODULE()
-OBS_MODULE_AUTHOR("Aitum");
-OBS_MODULE_USE_DEFAULT_LOCALE("aitum-multistream", "en-US")
+OBS_MODULE_AUTHOR("DMITRII; based on Aitum Multistream");
+OBS_MODULE_USE_DEFAULT_LOCALE("stream-multi", "en-US")
 
 static MultistreamDock *multistream_dock = nullptr;
 
@@ -46,38 +48,18 @@ bool version_info_downloaded(void *param, struct file_download_data *file)
 
 bool obs_module_load(void)
 {
-	if (obs_get_module("aitum-stream-suite")) {
-		blog(LOG_ERROR, "[Aitum Multistream] Aitum Stream Suite detected, please uninstall it to use Aitum Multistream.");
-		return false;
-	}
-	blog(LOG_INFO, "[Aitum-Multistream] loaded version %s", PROJECT_VERSION);
+	blog(LOG_INFO, "[Stream Multi] loaded version %s (based on Aitum Multistream)", PROJECT_VERSION);
 
 	const auto main_window = static_cast<QMainWindow *>(obs_frontend_get_main_window());
 	multistream_dock = new MultistreamDock(main_window);
-	obs_frontend_add_dock_by_id("AitumMultistreamDock", obs_module_text("AitumMultistream"), multistream_dock);
+	obs_frontend_add_dock_by_id("StreamMultiDock", obs_module_text("AitumMultistream"), multistream_dock);
 
-	std::string url = "https://api.aitum.tv/plugin/multi?version=" PROJECT_VERSION;
-	const char *pguid = config_get_string(obs_frontend_get_app_config(), "General", "InstallGUID");
-	if (pguid) {
-		url += "&uuid=";
-		url += pguid;
-	}
-
-
-	version_update_info =
-		update_info_create_single("[Aitum Multistream]", "OBS", url.c_str(), version_info_downloaded, nullptr);
 	return true;
 }
 
 void obs_module_post_load()
 {
-	if (obs_get_module("aitum-stream-suite")) {
-		obs_frontend_remove_dock("AitumMultistreamDock");
-		if (multistream_dock) {
-			multistream_dock->deleteLater();
-		}
-	}else if (multistream_dock) {
-		multistream_dock->LoadVerticalOutputs(true);
+	if (multistream_dock) {
 		multistream_dock->LoadWebsocket();
 	}
 }
@@ -135,19 +117,18 @@ void MultistreamDock::outputButtonStyle(QPushButton *button)
 {
 	button->setMinimumHeight(24);
 
-	std::string baseStyles = "min-width: 30px; padding: 2px 10px; border-width: 2px;";
-
-	button->setStyleSheet(QString::fromUtf8(baseStyles + (button->isChecked() ? "background: rgb(0,210,153);" : "")));
+	button->setStyleSheet(button->isChecked()
+		? "QPushButton {min-width:30px; padding:2px 10px; color:#03241d; background:#20d9a6; border:1px solid #20d9a6; border-radius:6px;}"
+		: "QPushButton {min-width:30px; padding:2px 10px; color:#b9cce0; background:#172536; border:1px solid #344c63; border-radius:6px;} QPushButton:hover {background:#21364b; border-color:#4a7188;}");
 
 	button->setIcon(button->isChecked() ? streamActiveIcon : streamInactiveIcon);
 }
 
 // Common styling things here
-auto canvasGroupStyle = QString("padding: 0px 0px 0px 0px;");                          // Main Canvas, Vertical Canvas
-auto canvasGroupHeaderStyle = QString("padding: 0px 0px 0px 0px; font-weight: bold;"); // header of each group
-auto outputTitleStyle = QString("QLabel{}");                                           // "Built -in stream"
-auto outputGroupStyle = QString("background-color: %1; padding: 0px;")
-				.arg(QPalette().color(QPalette::ColorRole::Mid).name(QColor::HexRgb)); // wrapper around above
+auto canvasGroupStyle = QString("QGroupBox {background:#0b1521; border:1px solid #273c51; border-radius:7px; padding:5px;}");
+auto canvasGroupHeaderStyle = QString("QLabel {color:#e8f2fb; font-weight:600; padding:2px 0;}");
+auto outputTitleStyle = QString("QLabel {color:#e6f0fa; font-weight:600;}");
+auto outputGroupStyle = QString("QGroupBox {background:#101d2c; border:1px solid #294158; border-radius:7px; padding:4px;}");
 
 auto outputPlatformIconSize = 36;
 
@@ -182,6 +163,17 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 	mainLayout = new QVBoxLayout;
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	setLayout(mainLayout);
+	setStyleSheet("QFrame {background:#080f19; color:#d7e5f2;} QScrollArea {background:#080f19; border:none;} QScrollArea > QWidget > QWidget {background:#080f19;}");
+	auto header = new QHBoxLayout;
+	header->setContentsMargins(8, 8, 8, 5);
+	header->setSpacing(7);
+	auto brand = new QLabel;
+	brand->setPixmap(QIcon(":/aitum/media/stream-multi.svg").pixmap(28, 28));
+	header->addWidget(brand);
+	auto title = new QLabel(QStringLiteral("Stream Multi"));
+	title->setStyleSheet("font-size:17px; font-weight:700; color:#f0f7ff;");
+	header->addWidget(title, 1);
+	mainLayout->addLayout(header);
 
 	auto t = new QWidget;
 	auto tl = new QVBoxLayout;
@@ -290,32 +282,7 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 
 	tl->addWidget(mainCanvasGroup);
 
-	// VERTICAL
-	auto verticalCanvasGroup = new QGroupBox;
-	verticalCanvasGroup->setStyleSheet(canvasGroupStyle);
-
-	verticalCanvasLayout = new QVBoxLayout;
-	verticalCanvasGroup->setLayout(verticalCanvasLayout);
-	tl->addWidget(verticalCanvasGroup);
-
 	tl->addStretch(1);
-
-	// Layout for header row
-	auto verticalCanvasTitleRowLayout = new QHBoxLayout;
-
-	auto verticalCanvasLabel = new QLabel(QString::fromUtf8(obs_module_text("VerticalCanvas")));
-	verticalCanvasLabel->setStyleSheet(canvasGroupHeaderStyle);
-	verticalCanvasTitleRowLayout->addWidget(verticalCanvasLabel);
-
-	verticalCanvasLayout->addLayout(verticalCanvasTitleRowLayout);
-
-	// We store the actual outputs here
-	verticalCanvasOutputLayout = new QVBoxLayout;
-	verticalCanvasOutputLayout->setSpacing(4); // between outputs on vertical canvas
-
-	verticalCanvasLayout->addLayout(verticalCanvasOutputLayout); // Add output layout to parent
-
-	//tl->addWidget(verticalCanvasGroup);
 	QScrollArea *scrollArea = new QScrollArea;
 	scrollArea->setWidget(t);
 	scrollArea->setWidgetResizable(true);
@@ -347,7 +314,6 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 			obs_data_apply(settings, current_config);
 		}
 		configDialog->LoadSettings(settings);
-		configDialog->LoadVerticalSettings(true);
 		configDialog->LoadOutputStats(&oldVideo);
 		configDialog->SetNewerVersion(newer_version_available);
 		configDialog->setResult(QDialog::Rejected);
@@ -357,8 +323,6 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 				obs_data_release(settings);
 				SaveSettings();
 				LoadSettings();
-				configDialog->SaveVerticalSettings();
-				LoadVerticalOutputs(false);
 			} else {
 				current_config = settings;
 			}
@@ -367,24 +331,27 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 		}
 	});
 
-	buttonRow->addWidget(configButton);
+	configButton->setMinimumWidth(30);
+	configButton->setMaximumWidth(34);
+	configButton->setStyleSheet("QPushButton {background:#172536; border:1px solid #344c63; border-radius:6px; color:#b9cce0;} QPushButton:hover {background:#21364b; border-color:#4a7188;}");
+	header->addWidget(configButton);
 
 	// Contribute Button
 	auto contributeButton = new QPushButton;
-	contributeButton->setMinimumHeight(30);
+	contributeButton->setMinimumHeight(26);
 	contributeButton->setIcon(ConfigUtils::generateEmojiQIcon("❤️"));
 	contributeButton->setToolTip(QString::fromUtf8(obs_module_text("AitumMultistreamDonate")));
 	QPushButton::connect(contributeButton, &QPushButton::clicked,
-			     [] { QDesktopServices::openUrl(QUrl("https://aitum.tv/contribute")); });
+			     [] { QDesktopServices::openUrl(QUrl("https://www.donationalerts.com/r/otmopozok")); });
 	buttonRow->addWidget(contributeButton);
 
-	// Aitum Button
+	// Keep a visible credit and link to the original project.
 	auto aitumButton = new QPushButton;
 	aitumButton->setMinimumHeight(30);
 	//aitumButton->setSizePolicy(sp2);
-	aitumButton->setIcon(QIcon(":/aitum/media/aitum.png"));
-	aitumButton->setToolTip(QString::fromUtf8("https://aitum.tv"));
-	QPushButton::connect(aitumButton, &QPushButton::clicked, [] { QDesktopServices::openUrl(QUrl("https://aitum.tv")); });
+	aitumButton->setText(QStringLiteral("Aitum"));
+	aitumButton->setToolTip(QStringLiteral("На основе Aitum Multistream (GPL-2.0)"));
+	QPushButton::connect(aitumButton, &QPushButton::clicked, [] { QDesktopServices::openUrl(QUrl("https://github.com/Aitum/obs-aitum-multistream")); });
 	buttonRow->addWidget(aitumButton);
 
 	mainLayout->addLayout(buttonRow);
@@ -457,36 +424,6 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 				}
 			}
 		}
-		auto ph = obs_get_proc_handler();
-		struct calldata cd;
-		calldata_init(&cd);
-		idx = 0;
-		while (auto item = verticalCanvasOutputLayout->itemAt(idx++)) {
-			auto streamGroup = item->widget();
-			std::string name = streamGroup->objectName().toUtf8().constData();
-			if (name.empty()) {
-				continue;
-			}
-			obs_output_t *output = nullptr;
-			calldata_set_string(&cd, "name", name.c_str());
-			if (proc_handler_call(ph, "aitum_vertical_get_stream_output", &cd)) {
-				output = (obs_output_t *)calldata_ptr(&cd, "output");
-			}
-			bool active = obs_output_active(output);
-			obs_output_release(output);
-			foreach(QObject * c, streamGroup->children())
-			{
-				std::string cn = c->metaObject()->className();
-				if (cn == "QPushButton") {
-					auto pb = (QPushButton *)c;
-					if (pb->isChecked() != active) {
-						pb->setChecked(active);
-						outputButtonStyle(pb);
-					}
-				}
-			}
-		}
-		calldata_free(&cd);
 	});
 	videoCheckTimer.start(500);
 	LoadSettingsFile();
@@ -565,6 +502,17 @@ void MultistreamDock::LoadSettingsFile()
 		return;
 	}
 	obs_data_t *config = obs_data_create_from_json_file_safe(path, "bak");
+	if (!config) {
+		// Import horizontal outputs once, leaving the original Aitum settings untouched.
+		const QFileInfo target(QString::fromUtf8(path));
+		const QString legacyPath = target.dir().filePath(QStringLiteral("../aitum-multistream/config.json"));
+		config = obs_data_create_from_json_file_safe(legacyPath.toUtf8().constData(), "bak");
+		if (config) {
+			QDir().mkpath(target.absolutePath());
+			obs_data_save_json_safe(config, path, "tmp", "bak");
+			blog(LOG_INFO, "[Stream Multi] imported horizontal output settings from Aitum Multistream");
+		}
+	}
 	bfree(path);
 	if (!config) {
 		config = obs_data_create();
@@ -1376,7 +1324,7 @@ void MultistreamDock::LoadWebsocket()
 	if (vendor) {
 		return;
 	}
-	vendor = obs_websocket_register_vendor("aitum-multistream");
+	vendor = obs_websocket_register_vendor("stream-multi");
 	if (!vendor) {
 		blog(LOG_ERROR, "[Aitum Multistream] Failed to register websocket vendor");
 		return;
@@ -1413,19 +1361,6 @@ void MultistreamDock::vendor_request_get_outputs(obs_data_t *request_data, obs_d
 		},
 		outputs3);
 	obs_data_array_release(outputs2);
-	if (md->vertical_outputs) {
-		obs_data_array_enum(
-			md->vertical_outputs,
-			[](obs_data_t *o, void *data) {
-				auto outputs3 = (obs_data_array_t *)data;
-				auto o2 = obs_data_create();
-				obs_data_set_string(o2, "name", obs_data_get_string(o, "name"));
-				obs_data_set_bool(o2, "vertical", true);
-				obs_data_array_push_back(outputs3, o2);
-				obs_data_release(o2);
-			},
-			outputs3);
-	}
 	obs_data_set_array(response_data, "outputs", outputs3);
 	obs_data_array_release(outputs3);
 	obs_data_set_bool(response_data, "success", true);
@@ -1447,23 +1382,6 @@ void MultistreamDock::vendor_request_start_output(obs_data_t *request_data, obs_
 		[md, sb, name] {
 			for (int i = 1; i < md->mainCanvasOutputLayout->count(); i++) {
 				auto item = md->mainCanvasOutputLayout->itemAt(i);
-				auto w = item->widget();
-				if (!w) {
-					continue;
-				}
-				auto oName = w->objectName().toStdString();
-				if (oName == name) {
-					auto button = w->findChild<QPushButton *>(QStringLiteral("canvasStream"));
-					if (button && !button->isChecked()) {
-						QMetaObject::invokeMethod(
-							button, [button] { button->click(); }, Qt::QueuedConnection);
-					}
-					*sb = true;
-					return;
-				}
-			}
-			for (int i = 0; i < md->verticalCanvasOutputLayout->count(); i++) {
-				auto item = md->verticalCanvasOutputLayout->itemAt(i);
 				auto w = item->widget();
 				if (!w) {
 					continue;
@@ -1505,23 +1423,6 @@ void MultistreamDock::vendor_request_stop_output(obs_data_t *request_data, obs_d
 		[md, sb, name] {
 			for (int i = 1; i < md->mainCanvasOutputLayout->count(); i++) {
 				auto item = md->mainCanvasOutputLayout->itemAt(i);
-				auto w = item->widget();
-				if (!w) {
-					continue;
-				}
-				auto oName = w->objectName().toStdString();
-				if (oName == name) {
-					auto button = w->findChild<QPushButton *>(QStringLiteral("canvasStream"));
-					if (button && button->isChecked()) {
-						QMetaObject::invokeMethod(
-							button, [button] { button->click(); }, Qt::QueuedConnection);
-					}
-					*sb = true;
-					return;
-				}
-			}
-			for (int i = 0; i < md->verticalCanvasOutputLayout->count(); i++) {
-				auto item = md->verticalCanvasOutputLayout->itemAt(i);
 				auto w = item->widget();
 				if (!w) {
 					continue;

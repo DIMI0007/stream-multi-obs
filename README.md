@@ -1,16 +1,28 @@
-# Aitum Multistream for OBS Studio
+# Stream Multi
 
-Plugin for [OBS Studio](https://github.com/obsproject/obs-studio) to add [![Aitum logo](media/aitum.png) Aitum](https://aitum.tv)
+**Несколько трансляций из одной OBS в стиле Stream Chat, Stream Notify и Stream Stats.** Stream Multi управляет выводами обычного горизонтального холста. Вертикальные сцены и их настройки в этой версии не используются.
 
-# Build
-- In-tree build
-    - Build OBS Studio: https://obsproject.com/wiki/Install-Instructions
-    - Check out this repository to UI/frontend-plugins/aitum-multistream
-    - Add `add_subdirectory(aitum-multistream)` to UI/frontend-plugins/CMakeLists.txt
-    - Rebuild OBS Studio
-- Stand-alone build
-    - Verify that you have development files for OBS
-    - Check out this repository and run `cmake -S . -B build -DBUILD_OUT_OF_TREE=On && cmake --build build`
+Разработчик оформления и адаптации: **DMITRII / [OTMOPOZOK](https://www.youtube.com/channel/UCTAKYR3T2Ud8zZgNShgQfyw/)**. Проект основан на открытом [Aitum Multistream](https://github.com/Aitum/obs-aitum-multistream) команды Aitum и Exeldro. Их авторство и лицензия GPL-2.0 сохранены.
 
-# Translations
-Please read [Translations](TRANSLATIONS.md)
+## Что делает
+
+- Показывает встроенную трансляцию OBS и дополнительные выводы Twitch, YouTube, Kick и других платформ.
+- Позволяет запускать и останавливать каждый вывод из панели.
+- Сохраняет настройки выводов отдельно для каждого профиля OBS.
+- При первом запуске копирует настройки горизонтальных выводов Aitum Multistream, если они есть. Исходный файл Aitum остаётся без изменений.
+
+## Как установить
+
+Эта адаптация пока проходит сборку и проверку. Не заменяйте установленный Aitum Multistream исходниками из репозитория. После проверки здесь появится архив для OBS Studio 33 на Windows x64 и пошаговая инструкция.
+
+До установки готового архива закройте OBS. Если у вас уже есть Aitum Multistream, отключите его перед запуском Stream Multi, чтобы случайно не отправить два потока на один адрес.
+
+Stream Multi работает независимо от Stream Chat, Stream Notify и Stream Stats. При установленном Stats дополнительные активные выводы учитываются в общей статистике трансляции OBS.
+
+## Исходный код и права
+
+Исходный код Aitum Multistream распространяется по [GPL-2.0](LICENSE). Изменённые файлы и дата изменений перечислены в [NOTICE.md](NOTICE.md). [Исходная инструкция сборки](README_UPSTREAM.md) также сохранена.
+
+## Поддержать проект
+
+Если наши плагины полезны, поддержите их развитие: [DonationAlerts](https://www.donationalerts.com/r/otmopozok) · [DonatePay](https://donatepay.ru/don/OTMOPOZOK).
