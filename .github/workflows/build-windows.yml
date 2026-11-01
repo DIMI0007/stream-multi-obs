@@ -1,4 +1,4 @@
-name: Build Stream Multi for OBS 33
+name: Build OZK Multi for OBS 33
 
 on:
   push:
@@ -35,6 +35,6 @@ jobs:
           Get-FileHash $file.FullName -Algorithm SHA256 | Format-List
       - uses: actions/upload-artifact@v4
         with:
-          name: StreamMulti-0.1.4-OBS33-Windows-x64
+          name: OZKMulti-0.1.5-OBS33-Windows-x64
           path: package/
           if-no-files-found: error

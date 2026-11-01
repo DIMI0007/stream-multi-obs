@@ -1,15 +1,15 @@
 {
-    "display_name": "Stream Multi",
+    "display_name": "OZK Multi",
     "id": "b012fd25-cf74-427e-91ca-554a8464ee3b",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "authors": ["DMITRII", "Aitum", "Exeldro"],
     "name": "stream-multi",
     "description": "Horizontal multistream plugin for OBS Studio based on Aitum Multistream.",
-    "long_description": "Stream Multi sends the standard OBS canvas to multiple platforms. The interface is adapted by DMITRII from Aitum Multistream under GPL-2.0. Vertical canvas controls are not included.",
+    "long_description": "OZK Multi sends the standard OBS canvas to multiple platforms. The interface is adapted by DMITRII from Aitum Multistream under GPL-2.0. Vertical canvas controls are not included.",
     "urls": {
-        "repository": "https://github.com/DIMI0007/stream-multi-obs",
-        "website": "https://github.com/DIMI0007/stream-multi-obs",
-        "support": "https://github.com/DIMI0007/stream-multi-obs/issues"
+        "repository": "https://github.com/DIMI0007/ozk-multi",
+        "website": "https://github.com/DIMI0007/ozk-multi",
+        "support": "https://github.com/DIMI0007/ozk-multi/issues"
     },
     "has_banner": false,
     "has_icon": false

@@ -49,7 +49,7 @@ bool version_info_downloaded(void *param, struct file_download_data *file)
 
 bool obs_module_load(void)
 {
-	blog(LOG_INFO, "[Stream Multi] loaded version %s (based on Aitum Multistream)", PROJECT_VERSION);
+	blog(LOG_INFO, "[OZK Multi] loaded version %s (based on Aitum Multistream)", PROJECT_VERSION);
 
 	const auto main_window = static_cast<QMainWindow *>(obs_frontend_get_main_window());
 	multistream_dock = new MultistreamDock(main_window);
@@ -185,7 +185,9 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 	auto brand = new QLabel;
 	brand->setPixmap(QIcon(":/aitum/media/stream-multi.svg").pixmap(28, 28));
 	header->addWidget(brand);
-	auto title = new QLabel(QStringLiteral("Stream Multi"));
+	auto title = new QLabel(QStringLiteral("<span style='color:#57dfd1'>OZK</span> Multi"));
+	title->setTextFormat(Qt::RichText);
+	title->setAccessibleName(QStringLiteral("OZK Multi"));
 	title->setStyleSheet("font-size:17px; font-weight:700; color:#f0f7ff;");
 	header->addWidget(title, 1);
 	mainLayout->addLayout(header);
@@ -358,7 +360,7 @@ MultistreamDock::MultistreamDock(QWidget *parent) : QFrame(parent)
 	footerCreditLink = new QLabel;
 	footerCreditLink->setText(QStringLiteral("<span style='color:#5e7790'>✦ </span><a href='https://www.youtube.com/channel/UCTAKYR3T2Ud8zZgNShgQfyw/' style='color:#57dfd1;text-decoration:none;font-weight:700'>OTMOPOZOK</a><span style='color:#5e7790'> · </span><a href='https://github.com/Aitum/obs-aitum-multistream' style='color:#9fb8d1;text-decoration:none'>Aitum</a>"));
 	footerCreditLink->setOpenExternalLinks(true);
-	footerCreditLink->setToolTip(QStringLiteral("Stream Multi · OTMOPOZOK\nНа основе Aitum Multistream (GPL-2.0)"));
+	footerCreditLink->setToolTip(QStringLiteral("OZK Multi · OTMOPOZOK\nНа основе Aitum Multistream (GPL-2.0)"));
 	footerCreditLink->setStyleSheet(QStringLiteral("font-size:11px;background:transparent;"));
 	buttonRow->addWidget(footerCreditLink);
 
@@ -520,7 +522,7 @@ void MultistreamDock::LoadSettingsFile()
 		if (config) {
 			QDir().mkpath(target.absolutePath());
 			obs_data_save_json_safe(config, path, "tmp", "bak");
-			blog(LOG_INFO, "[Stream Multi] imported horizontal output settings from Aitum Multistream");
+			blog(LOG_INFO, "[OZK Multi] imported horizontal output settings from Aitum Multistream");
 		}
 	}
 	bfree(path);
@@ -1417,7 +1419,7 @@ void MultistreamDock::AskUpdate()
 	mb.setDefaultButton(remind);
 	mb.exec();
 	if (mb.clickedButton() == update) {
-		QDesktopServices::openUrl(QUrl(QString::fromUtf8("https://github.com/DIMI0007/stream-multi-obs/releases")));
+		QDesktopServices::openUrl(QUrl(QString::fromUtf8("https://github.com/DIMI0007/ozk-multi/releases")));
 	} else if (mb.clickedButton() == skip) {
 		if (!config) {
 			config = obs_data_create();

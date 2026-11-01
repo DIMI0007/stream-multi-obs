@@ -376,7 +376,7 @@ OBSBasicSettings::OBSBasicSettings(QMainWindow *parent) : QDialog(parent)
 	settingsPages->addWidget(supportPage);
 
 	///
-	const auto version = new QLabel(QStringLiteral("Stream Multi v") + QString::fromUtf8(PROJECT_VERSION) +
+	const auto version = new QLabel(QStringLiteral("OZK Multi v") + QString::fromUtf8(PROJECT_VERSION) +
 		QStringLiteral(" · DMITRII · <a href=\"https://github.com/Aitum/obs-aitum-multistream\">на основе Aitum Multistream</a>"));
 	version->setOpenExternalLinks(true);
 	version->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);

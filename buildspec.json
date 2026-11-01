@@ -37,8 +37,8 @@
         }
     },
     "name": "stream-multi",
-    "displayName": "Stream Multi",
-    "version": "0.1.4",
+    "displayName": "OZK Multi",
+    "version": "0.1.5",
     "author": "DMITRII (based on Aitum Multistream)",
     "website": "https://github.com/DIMI0007",
     "email": "",
