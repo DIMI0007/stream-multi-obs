@@ -1,4 +1,4 @@
-# OZK Multi — мультистрим Twitch, YouTube и Kick в OBS
+# OZK Multi for OBS
 
 Часть набора **OZK StreamKit** от OTMOPOZOK. Работает и отдельно от остальных плагинов.
 
