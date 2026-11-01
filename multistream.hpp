@@ -71,6 +71,8 @@ private:
 
 	static void stream_output_stop(void *data, calldata_t *calldata);
 	static void stream_output_start(void *data, calldata_t *calldata);
+	static void stream_output_reconnect(void *data, calldata_t *calldata);
+	static void stream_output_reconnect_success(void *data, calldata_t *calldata);
 
 	static void vendor_request_version(obs_data_t *request_data, obs_data_t *response_data, void *self);
 	static void vendor_request_get_outputs(obs_data_t *request_data, obs_data_t *response_data, void *self);
